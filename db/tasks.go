@@ -2,6 +2,7 @@ package db
 
 import (
     "time"
+    "encoding/binary"
 
     "github.com/boltdb/bolt"
 )
@@ -16,7 +17,6 @@ var db *bolt.DB
 type Task struct {
     Key int
     Value string
-
 }
 
 // Init function for initializing our database and any buckets we'd like to be stored within it
@@ -36,4 +36,50 @@ func Init(dbPath string) error {
         _, err := tx.CreateBucketIfNotExists(taskBucket)
         return err
     })
+}
+
+// Create a task function
+func CreateTask(task string) (int, error) {
+    var id int
+   
+    // Start our read-write transaction with the database
+    err := db.Update(func(tx *bolt.Tx) error {
+        // Grab the task bucket
+        bucket := tx.Bucket(taskBucket)
+        // Get the next incremental id
+        id64, _ := bucket.NextSequence()
+        // Store our id outside of the closure
+        id = int(id64) 
+        // convert the id into a byte slice to use as a bolt db key
+        key := itob(id64)
+        // Store both the key and task into our db
+        return bucket.Put(key, []byte(task))
+    })
+    
+    // Check if the transaction threw an error
+    if err == nil {
+        return -1, err
+    }
+
+    // Returns the id and no error, indicating all is good!
+    return id, nil
+}
+
+// Convert an integer to a byte slice
+// in big endian order so that our oldest keys will be in positions
+// Where they are the first keys retrieved from 
+func itob(integer uint64) []byte {
+    // Create an with 8 zeroed positions
+    byteSlice := make([]byte, 8)
+    // Convert the unsigned integer to a big endian byte string that
+    // gets stored within our byte slice
+    binary.BigEndian.PutUint64(byteSlice, integer)
+    return byteSlice
+}
+
+// Convert a byte slice into an integer
+// Useful for getting the values of the byte slices we're storing into
+// the dbs as keys
+func btoi(byteSlice []byte) uint64 {
+    return binary.BigEndian.Uint64(byteSlice)
 }
