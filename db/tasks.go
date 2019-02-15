@@ -65,6 +65,43 @@ func CreateTask(task string) (int, error) {
     return id, nil
 }
 
+func AllTasks() ([]Task, error) {
+    var tasks []Task
+
+    err := db.View(func(tx *bolt.Tx) error {
+        // Grab the task bucket
+        bucket := tx.Bucket(taskBucket)
+
+        // grab a cursor from the bucket
+        // The cursor is only valid for the lifetime of the trasanction
+        cursor := bucket.Cursor()
+
+        // using the cursor, iterate over all of our key/value pairs for as long as
+        // there aren't any more keys left
+        for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
+            // convert both the key and value into data types suitable for our
+            // Task structure and make sure that we use new variables to make sure
+            // we're not overwriting any of the k,v in bolt
+            copiedKey := int(btoi(key))
+            copiedValue := string(value)
+
+            // Append the task to our tasks slice
+            tasks = append(tasks, Task{
+               Key: copiedKey,
+               Value: copiedValue, 
+           }) 
+        }
+        return nil
+    })
+
+    // If the tx fails, return the error
+    if err != nil {
+        return nil, err
+    }
+
+    return tasks, nil
+}
+
 // Convert an integer to a byte slice
 // in big endian order so that our oldest keys will be in positions
 // Where they are the first keys retrieved from 
