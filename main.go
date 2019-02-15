@@ -2,6 +2,8 @@ package main
 
 // We import go-homedir as homedir
 import (
+    "fmt"
+    "os"
     "path/filepath"
     "godoist/cmd"
     "godoist/db"
@@ -17,12 +19,16 @@ func main() {
     dbPath := filepath.Join(home, "tasks.db")
     
     // Instantiate our db connection/buckets
-    err:= db.Init(dbPath)
+    must(db.Init(dbPath))
 
-    // Crash if setting up our database fails
-    if err != nil {
-        panic(err)
-    }
     // Execute the root command (Describe our app)
-    cmd.RootCmd.Execute();
+    must(cmd.RootCmd.Execute());
+}
+
+// Error handling function for somewhat useful error outputs
+func must(err error) {
+    if err != nil {
+        fmt.Println(err.Error())
+        os.Exit(1)
+    }
 }
