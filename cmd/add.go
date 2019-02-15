@@ -1,15 +1,24 @@
 package cmd
 
-import "github.com/spf13/cobra"
-import "fmt"
-import "strings"
+import (
+	"fmt"
+    "strings"
+    "godoist/db"
+
+	"github.com/spf13/cobra"
+)
 
 var addCmd = &cobra.Command{
     Use: "add",
     Short: "Add a task to the to do list",
     Run: func(cmd *cobra.Command, args []string) {
+
         task := strings.Join(args, " ")
-        fmt.Printf("Added \"%s\" to your task list \n", task)
+        taskId, err := db.CreateTask(task)
+        if err != nil {
+            fmt.Printf("A sudden error occurred: %s\n", err.Error())
+        }
+        fmt.Printf("Added \"%s\" to your task list with an id of: %d\n", task, taskId)
     },
 }
 

@@ -25,7 +25,7 @@ import (
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "A brief description of your command",
+	Short: "To list all of the tasks that you have to do",
 	Run: func(cmd *cobra.Command, args []string) {
         tasks, err := db.AllTasks()
         
@@ -42,7 +42,7 @@ var listCmd = &cobra.Command{
         
         fmt.Println("You have the following tasks:")
         for i, task := range tasks {
-            fmt.Printf("%d. %s", i + 2, task.Value)
+            fmt.Printf("%d. %s\n", i + 1, task.Value)
         }
 	},
 }

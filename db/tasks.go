@@ -57,7 +57,7 @@ func CreateTask(task string) (int, error) {
     })
     
     // Check if the transaction threw an error
-    if err == nil {
+    if err != nil {
         return -1, err
     }
 
