@@ -119,7 +119,7 @@ func DeleteTask(key int) error {
 
 // Convert an integer to a byte slice
 // in big endian order so that our oldest keys will be in positions
-// Where they are the first keys retrieved from 
+// where they are the first keys retrieved from 
 func itob(integer uint64) []byte {
     // Create an with 8 zeroed positions
     byteSlice := make([]byte, 8)

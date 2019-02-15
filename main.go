@@ -14,7 +14,7 @@ import (
 func main() {
     // Obtain the homedir path for the user currently running this program
     home, _ := homedir.Dir()
-
+    
     // Join the home directory with our desired file path
     dbPath := filepath.Join(home, "tasks.db")
     
