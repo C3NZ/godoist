@@ -38,7 +38,7 @@ func Init(dbPath string) error {
     })
 }
 
-// Create a task function
+// Create a task
 func CreateTask(task string) (int, error) {
     var id int
    
@@ -65,6 +65,7 @@ func CreateTask(task string) (int, error) {
     return id, nil
 }
 
+// List all tasks that a user has created
 func AllTasks() ([]Task, error) {
     var tasks []Task
 
@@ -101,6 +102,20 @@ func AllTasks() ([]Task, error) {
 
     return tasks, nil
 }
+
+// Delete a task from the task bucket
+func DeleteTask(key int) error {
+    // Request a read/write transaction from bolt
+    return db.Update(func(tx *bolt.Tx) error {
+        // Grab the bucket we'd like to work with
+        bucket := tx.Bucket(taskBucket)
+        // Convert key into a uint64 and then delete it from the bucket
+        key := uint64(key)
+        return bucket.Delete(itob(key))
+    })
+}
+
+
 
 // Convert an integer to a byte slice
 // in big endian order so that our oldest keys will be in positions
